@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, for help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -150,7 +150,32 @@ vim.opt.inccommand = 'split'
 
 -- Show which line your cursor is on
 vim.opt.cursorline = true
+-- Set gui font
+vim.opt.guifont = 'Hasklug Nerd Font:h16'
 
+-- Set cursor shape in various modes
+vim.opt.guicursor = {
+  'n-v-c:block-Cursor', -- Normal, Visual, Command mode
+  'i:ver25-Cursor', -- Insert mode
+  'r-cr:hor20-Cursor', -- Replace mode and Command line
+  'o:hor50-Cursor', -- Operator pending mode
+  'a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor', -- Insert mode when language mapping is used (e.g., for Hebrew or Arabic)
+  'sm:block-Cursor', -- showmatch in Insert, Replace or Command line mode
+  'r:hor20-Cursor', -- Terminal mode
+}
+
+-- Set cursor color in various modes
+vim.api.nvim_set_hl(0, 'Cursor', { fg = '#cc9900', bg = '#339966' })
+vim.api.nvim_set_hl(0, 'iCursor', { fg = '#ffffaf', bg = '#339966' })
+vim.api.nvim_set_hl(0, 'rCursor', { fg = '#d70000', bg = '#339966' })
+
+-- Reset cursor color on exit
+vim.api.nvim_create_autocmd('VimLeave', {
+  pattern = '*',
+  callback = function()
+    vim.opt.guicursor = 'a:ver25-Cursor'
+  end,
+})
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
@@ -227,6 +252,42 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  {
+    'wincent/terminus', -- echanced terminal interation for vim
+    event = 'VimEnter',
+    config = function()
+      vim.g.TerminusCursorShape = 0
+      vim.g.TerminusInsertCursorShape = 1
+      vim.g.TerminusReplaceCursorShape = 2
+      vim.g.TerminusNormalCursorShape = 0
+      vim.g.TerminusInsertCursorBlinkShape = 1
+      vim.g.TerminusReplaceCursorBlinkShape = 2
+      vim.g.TerminusNormalCursorBlinkShape = 0
+    end,
+  },
+  'bagrat/vim-buffet', -- IDE style tabs used in netrw
+  event = 'BufReadPost',
+  opt = {
+    always_show_tabline = true,
+    powerline_seperators = true,
+    tab_icon = '#',
+    new_buffer_name = '*',
+    modified_icon = '+',
+    left_trunc_icon = '<',
+    right_trunc_icon = '>',
+  },
+  keys = {
+    { '<Leader>1', '<Plug>BufferSwitch(1)', 'n' },
+    { '<Leader>2', '<Plug>BufferSwitch(2)', 'n' },
+    { '<Leader>3', '<Plug>BufferSwitch(3)', 'n' },
+    { '<Leader>4', '<Plug>BufferSwitch(4)', 'n' },
+    { '<Leader>5', '<Plug>BufferSwitch(5)', 'n' },
+    { '<Leader>6', '<Plug>BufferSwitch(6)', 'n' },
+    { '<Leader>7', '<Plug>BufferSwitch(7)', 'n' },
+    { '<Leader>8', '<Plug>BufferSwitch(8)', 'n' },
+    { '<Leader>9', '<Plug>BufferSwitch(9)', 'n' },
+    { '<Leader>10', '<Plug>BufferSwitch(10)', 'n' },
+  },
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -539,10 +600,11 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
-        -- gopls = {},
-        -- pyright = {},
-        -- rust_analyzer = {},
+        clangd = {},
+        gopls = {},
+        pyright = {},
+        rust_analyzer = {},
+        powershell_es = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -554,7 +616,7 @@ require('lazy').setup({
 
         lua_ls = {
           -- cmd = {...},
-          -- filetypes { ...},
+          -- filetypes = { ...},
           -- capabilities = {},
           settings = {
             Lua = {
@@ -735,13 +797,14 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`
-    'folke/tokyonight.nvim',
+    'rebelot/kanagawa.nvim',
+    --'folke/tokyonight.nvim',
     priority = 1000, -- make sure to load this before all the other start plugins
     init = function()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'kanagawa-wave'
 
       -- You can configure highlights by doing something like
       vim.cmd.hi 'Comment gui=none'
@@ -831,6 +894,7 @@ require('lazy').setup({
   --
   -- require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
+  -- require 'kickstart.plugins.lint',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
@@ -862,3 +926,46 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+-- netrw config
+vim.g.netrw_liststyle = 3
+vim.g.netrw_browse_split = 4
+vim.g.netrw_altv = 1
+vim.g.netrw_winsize = 25
+
+vim.api.nvim_create_augroup('ProjectDrawer', {})
+vim.api.nvim_create_autocmd('VimEnter', {
+  group = 'ProjectDrawer',
+  callback = function()
+    vim.cmd ':Vexplore'
+  end,
+})
+
+-- vim-buffet config
+vim.keymap.set('n', '<Tab>', ':bn<CR>')
+vim.keymap.set('n', '<S-Tab>', ':bp<CR>')
+vim.keymap.set('n', '<Leader><Tab>', ':Bw<CR>')
+vim.keymap.set('n', '<Leader><S-Tab>', ':Bw!<CR>')
+vim.keymap.set('n', '<C-t>', ':tabnew split<CR>')
+--vim.keymap.set('n', 'gc', ':tabclose<CR>')
+
+-- external viewwer for csv
+vim.g.netrw_browsex_viewer = 'open'
+
+-- For Lua (init.lua)
+--local function open_with_excel()
+--  local filename = vim.fn.expand '%:p'
+--  if vim.fn.filereadable(filename) == 1 then
+--    vim.cmd("silent !open -a 'Microsoft Excel.app' '" .. vim.fn.shellescape(filename) .. "'")
+--    vim.cmd 'redraw!'
+--  end
+--end
+--
+--vim.cmd 'command! OpenCSV lua open_with_excel()'
+--
+--vim.api.nvim_create_autocmd('BufReadPost', {
+--  pattern = '*.csv',
+--  callback = function()
+--    vim.api.nvim_buf_set_keymap(0, 'n', '<leader>e', ':OpenCSV<CR>', { silent = true, noremap = true })
+--  end,
+--})
